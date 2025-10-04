@@ -29,6 +29,7 @@ const normalizeText = (text: string = ''): string => {
 };
 
 const isValidUrl = (urlString: string): boolean => {
+  if (!urlString) return true; // Permite strings vazias como válidas
   try {
     new URL(urlString);
     return true;
@@ -61,6 +62,7 @@ const GerenciarSimplified = () => {
   const [urlPublication, setUrlPublication] = useState<Publication | null>(null);
   const [urlDialogOpen, setUrlDialogOpen] = useState(false);
   const [publicationUrl, setPublicationUrl] = useState("");
+  const [publicationUrlAlternativa, setPublicationUrlAlternativa] = useState("");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
   
   const [processing, setProcessing] = useState(false);
@@ -79,7 +81,6 @@ const GerenciarSimplified = () => {
       const { data, error } = await supabase.from('publications').select('*').order('category, name');
       if (error) throw error;
       setPublications(data || []);
-      // toast({ title: "Sucesso", description: "Publicações carregadas." });
     } catch (error) {
       console.error('Erro ao carregar publicações:', error);
       toast({ title: "Erro", description: "Não foi possível carregar as publicações.", variant: "destructive" });
@@ -107,28 +108,40 @@ const GerenciarSimplified = () => {
   };
 
   const handleSaveUrl = async () => {
-    if (!urlPublication || !isValidUrl(publicationUrl)) {
-      toast({ title: "URL Inválida", description: "Por favor, insira uma URL válida.", variant: "destructive" });
+    if (!urlPublication) return;
+    if (!isValidUrl(publicationUrl) || !isValidUrl(publicationUrlAlternativa)) {
+      toast({ title: "URL Inválida", description: "Por favor, insira URLs válidas ou deixe os campos vazios.", variant: "destructive" });
       return;
     }
     try {
       setProcessing(true);
       const { error } = await supabase
         .from('publications')
-        .update({ urlDoFabricante: publicationUrl })
+        .update({ 
+          urlDoFabricante: publicationUrl, 
+          urlDoFabricanteAlternativa: publicationUrlAlternativa 
+        })
         .eq('id', urlPublication.id);
       if (error) throw error;
-      toast({ title: "Sucesso", description: "URL salva com sucesso." });
+      toast({ title: "Sucesso", description: "URLs salvas com sucesso." });
       setUrlDialogOpen(false);
       loadPublications();
     } catch (error) {
-      console.error('Erro ao salvar URL:', error);
-      toast({ title: "Erro", description: "Não foi possível salvar a URL.", variant: "destructive" });
+      console.error('Erro ao salvar URLs:', error);
+      toast({ title: "Erro", description: "Não foi possível salvar as URLs.", variant: "destructive" });
     } finally {
       setProcessing(false);
       setUrlPublication(null);
       setPublicationUrl("");
+      setPublicationUrlAlternativa("");
     }
+  };
+  
+  const openUrlDialog = (publication: Publication) => {
+    setUrlPublication(publication);
+    setPublicationUrl(publication.urlDoFabricante || "");
+    setPublicationUrlAlternativa(publication.urlDoFabricanteAlternativa || "");
+    setUrlDialogOpen(true);
   };
 
   const handleExportCSV = async () => {
@@ -182,10 +195,9 @@ const GerenciarSimplified = () => {
   const handleScanSuccess = (scannedValue: string) => {
     setIsScannerOpen(false);
     
-    // Prioritize exact matches for QR codes and URLs
     const foundPublication = publications.find(pub => 
       pub.urlDoFabricante === scannedValue || 
-      pub.codigoExternoQR === scannedValue ||
+      pub.urlDoFabricanteAlternativa === scannedValue ||
       pub.code === scannedValue
     );
 
@@ -198,7 +210,7 @@ const GerenciarSimplified = () => {
       });
     } else {
       setScanResult(null);
-      setSearchTerm(scannedValue); // Keep the scanned value in the search bar if not found
+      setSearchTerm(scannedValue);
       toast({
         title: "Publicação Não Encontrada",
         description: "O código lido foi inserido no campo de busca.",
@@ -206,7 +218,6 @@ const GerenciarSimplified = () => {
       });
     }
   };
-
 
   const handleOpenCamera = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -338,8 +349,8 @@ const GerenciarSimplified = () => {
                                 <DropdownMenuItem onClick={() => { setEditingPublication(pub); setEditDialogOpen(true); }}>
                                   <Edit className="mr-2 h-4 w-4" />Editar
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => { setUrlPublication(pub); setPublicationUrl(pub.urlDoFabricante || ""); setUrlDialogOpen(true); }}>
-                                  <Link className="mr-2 h-4 w-4" />Cadastrar URL
+                                <DropdownMenuItem onClick={() => openUrlDialog(pub)}>
+                                  <Link className="mr-2 h-4 w-4" />Cadastrar URLs
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => { setPublicationToDelete(pub); setDeleteDialogOpen(true); }} className="text-destructive">
                                   <Trash2 className="mr-2 h-4 w-4" />Excluir
@@ -358,32 +369,42 @@ const GerenciarSimplified = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Diálogos */}
       <PublicationFormDialog open={showNewForm} onOpenChange={setShowNewForm} onSuccess={loadPublications} publication={null} />
       <PublicationFormDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} publication={editingPublication} onSuccess={() => { loadPublications(); setEditDialogOpen(false); }} />
       
       <Dialog open={urlDialogOpen} onOpenChange={setUrlDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Cadastrar URL para "{urlPublication?.name}"</DialogTitle>
+            <DialogTitle>Cadastrar URLs para "{urlPublication?.name}"</DialogTitle>
             <DialogDescription>
-              Insira a URL do fabricante ou outra URL de referência para esta publicação.
+              Insira as URLs de referência para esta publicação. Use a URL alternativa se houver mais de uma versão.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-2">
-            <Label htmlFor="pub-url">URL</Label>
-            <Input 
-              id="pub-url" 
-              value={publicationUrl}
-              onChange={(e) => setPublicationUrl(e.target.value)}
-              placeholder="https://exemplo.com/produto"
-            />
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="pub-url-principal">URL Principal</Label>
+              <Input 
+                id="pub-url-principal" 
+                value={publicationUrl}
+                onChange={(e) => setPublicationUrl(e.target.value)}
+                placeholder="https://exemplo.com/produto/versao1"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="pub-url-alternativa">URL Alternativa</Label>
+              <Input 
+                id="pub-url-alternativa" 
+                value={publicationUrlAlternativa}
+                onChange={(e) => setPublicationUrlAlternativa(e.target.value)}
+                placeholder="https://exemplo.com/produto/versao2"
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUrlDialogOpen(false)}>Cancelar</Button>
             <Button onClick={handleSaveUrl} disabled={processing}>
               {processing && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Salvar
+              Salvar URLs
             </Button>
           </DialogFooter>
         </DialogContent>

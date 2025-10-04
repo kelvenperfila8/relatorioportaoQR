@@ -134,7 +134,6 @@ const Estoque = () => {
 
   const handleExportCSV = async () => { /* ... */ };
 
-  // Correção Definitiva: Lógica de busca robusta com duas queries separadas.
   const handleScanSuccess = async (decodedText: string) => {
     setShowScanner(false);
     const scanValue = extractUrl(decodedText) || decodedText;
@@ -143,37 +142,26 @@ const Estoque = () => {
 
     setLoading(true);
     try {
-      // 1. Tenta buscar pelo campo principal `urlDoFabricante`
-      const { data: dataByUrl, error: errorByUrl } = await supabase
+      // Busca a URL escaneada em qualquer um dos dois campos
+      const { data, error } = await supabase
         .from('publications')
         .select('*')
-        .eq('urlDoFabricante', scanValue)
+        .or(`urlDoFabricante.eq.${scanValue},urlDoFabricanteAlternativa.eq.${scanValue}`)
         .limit(1);
 
-      if (errorByUrl) throw errorByUrl;
-
-      let finalData = dataByUrl;
-
-      // 2. Se não encontrar, tenta buscar pelo campo alternativo `codigoExternoQR`
-      if (!finalData || finalData.length === 0) {
-        const { data: dataByQr, error: errorByQr } = await supabase
-          .from('publications')
-          .select('*')
-          .eq('codigoExternoQR', scanValue)
-          .limit(1);
-        
-        if (errorByQr) throw errorByQr;
-        finalData = dataByQr;
+      if (error) {
+        console.error("Erro ao buscar por URL principal ou alternativa:", error);
+        throw error;
       }
 
-      if (finalData && finalData.length > 0) {
-        setPublications(finalData);
+      if (data && data.length > 0) {
+        setPublications(data);
         setSearchTerm("");
         setCategoryFilter("all");
         setHasMore(false);
         toast({
           title: "Publicação Encontrada",
-          description: finalData[0].name,
+          description: data[0].name,
         });
       } else {
         setPublications([]);
@@ -186,10 +174,10 @@ const Estoque = () => {
         });
       }
     } catch (dbError) {
-      console.error("Erro na busca por QR Code:", dbError);
+      console.error("Erro geral na busca por QR Code (capturado):", dbError);
       toast({
         title: "Erro na Busca",
-        description: "Ocorreu um erro ao consultar o banco de dados.",
+        description: "Ocorreu um erro ao consultar o banco de dados. Verifique o console para mais detalhes.",
         variant: "destructive",
       });
     } finally {
