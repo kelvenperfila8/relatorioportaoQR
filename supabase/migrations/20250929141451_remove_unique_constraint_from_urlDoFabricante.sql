@@ -1,0 +1,1 @@
+ALTER TABLE public.publications DROP CONSTRAINT publications_urlDoFabricante_key;
