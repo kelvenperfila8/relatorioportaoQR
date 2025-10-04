@@ -178,6 +178,11 @@ const GerenciarSimplified = () => {
     setIsScannerOpen(true);
   };
   
+  const openNewPublicationDialog = () => {
+    setEditingPublication(null); // Garante que não há publicação em edição
+    setShowNewForm(true);
+  };
+
   if (loading) { /* ... */ }
 
   return (
@@ -233,6 +238,12 @@ const GerenciarSimplified = () => {
                   {isExporting ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Download className="h-4 w-4 mr-2" />}
                   Exportar CSV
                 </Button>
+                {canCreate && (
+                  <Button onClick={openNewPublicationDialog} className="w-full md:w-auto">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Adicionar Publicação
+                  </Button>
+                )}
               </div>
               {isScannerOpen && (
                 <div className="relative mt-4">
@@ -313,7 +324,7 @@ const GerenciarSimplified = () => {
       </Tabs>
       
       {/* Diálogos */}
-      <PublicationFormDialog open={showNewForm} onOpenChange={setShowNewForm} onSuccess={loadPublications} />
+      <PublicationFormDialog open={showNewForm} onOpenChange={setShowNewForm} onSuccess={loadPublications} publication={null} />
       <PublicationFormDialog open={editDialogOpen} onOpenChange={setEditDialogOpen} publication={editingPublication} onSuccess={() => { loadPublications(); setEditDialogOpen(false); }} />
       
       <Dialog open={urlDialogOpen} onOpenChange={setUrlDialogOpen}>
