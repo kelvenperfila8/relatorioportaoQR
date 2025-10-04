@@ -13,7 +13,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
   requireReportAccess = false
 }) => {
-  const { user, profile, loading, isAdmin, canAccessReports } = useAuth();
+  const { user, profile, loading, isAdmin, canEdit, canAccessReports } = useAuth();
 
   if (loading) {
     return (
@@ -27,7 +27,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/auth" replace />;
   }
 
-  if (requireAdmin && !isAdmin) {
+  if (requireAdmin && !isAdmin && !canEdit) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
