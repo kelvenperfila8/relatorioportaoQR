@@ -1,9 +1,8 @@
 
 import React, { useRef, useEffect, useState } from "react";
 import jsQR from "jsqr";
-import { X, Camera } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 interface QrCodeScannerProps {
   onScan: (result: string) => void;
@@ -13,10 +12,8 @@ interface QrCodeScannerProps {
 const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const scannerContainerRef = useRef<HTMLDivElement>(null);
   const animationFrameId = useRef<number>();
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  const isMobile = useIsMobile();
 
   const stopScan = () => {
     if (videoRef.current && videoRef.current.srcObject) {
@@ -72,13 +69,6 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           animationFrameId.current = requestAnimationFrame(tick);
-
-          if (scannerContainerRef.current && !isMobile) {
-            scannerContainerRef.current.scrollIntoView({
-              behavior: "smooth",
-              block: "center",
-            });
-          }
         }
       } catch (err) {
         console.error("Erro ao acessar a câmera:", err);
@@ -93,15 +83,14 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
 
     startScan();
     return () => stopScan();
-  }, [isMobile, onClose]);
+  }, [onClose]);
 
-  const containerClasses = isMobile
-    ? "absolute top-full left-0 right-0 mt-4 z-50"
-    : "fixed inset-0 z-50 flex justify-center items-center bg-black/80 backdrop-blur-sm animate-in fade-in-0";
+  // Unified class for both mobile and desktop. No modal, no overlay.
+  const containerClasses = "w-full flex justify-center items-center";
 
   return (
-    <div ref={scannerContainerRef} className={containerClasses}>
-      <div className="relative w-full max-w-sm rounded-xl bg-transparent overflow-hidden animate-in zoom-in-95">
+    <div className={containerClasses}>
+      <div className="relative w-full max-w-sm rounded-xl bg-transparent overflow-hidden">
         {!showSuccessMessage && (
           <>
             <video

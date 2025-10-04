@@ -38,9 +38,12 @@ export interface Pedido {
 
 // Lista de categorias de publicações
 export const PUBLICATION_CATEGORIES = [
-  "Livros",
-  "Revistas",
-  "Folhetos",
+  "Brochuras e Livretos",
   "Bíblias",
-  "Outros",
+  "CARTAZ",
+  "Formulários",
+  "Kit de Ferramentas de Ensino",
+  "Livros",
+  "Revistas — Despertai!",
+  "Revistas - Sentinela"
 ];
