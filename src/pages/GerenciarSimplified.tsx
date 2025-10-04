@@ -39,7 +39,7 @@ const isValidUrl = (urlString: string): boolean => {
 
 const formatCsvValue = (value: any): string => {
   const stringValue = String(value ?? '');
-  if (/[";\n\r]/.test(stringValue)) {
+  if (/[",\n\r]/.test(stringValue)) {
     return `"${stringValue.replace(/"/g, '""')}"`;
   }
   return stringValue;
@@ -131,15 +131,48 @@ const GerenciarSimplified = () => {
     }
   };
 
-  const handleExportCSV = async () => { /* ... */ };
+  const handleExportCSV = async () => {
+    setIsExporting(true);
+    try {
+      const { data, error } = await supabase.from('publications').select('code,name,category,current_stock').order('name');
+      if (error) throw error;
+
+      const headers = ["Código", "Nome", "Categoria", "Estoque Atual"];
+      const csvRows = [];
+      csvRows.push(headers.join(','));
+
+      for (const row of data) {
+        const values = [row.code, row.name, row.category, row.current_stock].map(formatCsvValue);
+        csvRows.push(values.join(','));
+      }
+      
+      const csvString = "sep=,\n" + csvRows.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `publicacoes-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({ title: "Sucesso", description: "Publicações exportadas para CSV." });
+    } catch (error) {
+      console.error('Erro ao exportar CSV:', error);
+      toast({ title: "Erro", description: "Não foi possível exportar as publicações para CSV.", variant: "destructive" });
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   const filteredPublications = publications.filter(pub => {
     const normalizedSearch = normalizeText(searchTerm);
-    const matches = (text: string) => normalizeText(text).includes(normalizedSearch);
-    
+    const matchesName = () => normalizeText(pub.name).includes(normalizedSearch);
+    const matchesCode = () => normalizeText(pub.code) === normalizedSearch;
+    const matchesUrl = () => pub.urlDoFabricante && normalizeText(pub.urlDoFabricante).includes(normalizedSearch);
+
     return (
       (categoryFilter === "all" || pub.category === categoryFilter) &&
-      (matches(pub.name) || matches(pub.code) || matches(pub.urlDoFabricante))
+      (matchesName() || matchesCode() || matchesUrl())
     );
   });
   
@@ -149,6 +182,7 @@ const GerenciarSimplified = () => {
   const handleScanSuccess = (scannedValue: string) => {
     setIsScannerOpen(false);
     
+    // Prioritize exact matches for QR codes and URLs
     const foundPublication = publications.find(pub => 
       pub.urlDoFabricante === scannedValue || 
       pub.codigoExternoQR === scannedValue ||
@@ -164,7 +198,7 @@ const GerenciarSimplified = () => {
       });
     } else {
       setScanResult(null);
-      setSearchTerm(scannedValue);
+      setSearchTerm(scannedValue); // Keep the scanned value in the search bar if not found
       toast({
         title: "Publicação Não Encontrada",
         description: "O código lido foi inserido no campo de busca.",
@@ -173,17 +207,18 @@ const GerenciarSimplified = () => {
     }
   };
 
+
   const handleOpenCamera = () => {
     window.scrollTo({ top: 0, behavior: 'instant' });
-    setIsScannerOpen(true);
+    setIsScannerOpen(prev => !prev);
   };
   
   const openNewPublicationDialog = () => {
-    setEditingPublication(null); // Garante que não há publicação em edição
+    setEditingPublication(null);
     setShowNewForm(true);
   };
 
-  if (loading) { /* ... */ }
+  if (loading) { return <div>Carregando...</div>; }
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
@@ -193,7 +228,6 @@ const GerenciarSimplified = () => {
       </div>
 
       <Tabs defaultValue="catalog" className="w-full">
-        {/* ... */}
         <TabsContent value="catalog" className="space-y-6 mt-6">
           <Card>
             <CardContent className="p-6">
@@ -212,6 +246,7 @@ const GerenciarSimplified = () => {
                   <div className="absolute right-2 top-1/2 -translate-y-1/2">
                     <Button 
                       size="sm"
+                      variant="ghost"
                       className="h-7"
                       onClick={handleOpenCamera}
                     >
