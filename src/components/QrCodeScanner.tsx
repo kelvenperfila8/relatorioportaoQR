@@ -94,12 +94,12 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
           videoRef.current.play();
           animationFrameId.current = requestAnimationFrame(tick);
 
-          // Inicia o temporizador para fechar a câmera após 3 segundos
+          // Inicia o temporizador para fechar a câmera após 5 segundos
           timeoutId.current = setTimeout(() => {
             console.log("Tempo limite atingido, fechando a câmera.");
             stopScan();
             onClose();
-          }, 3000) as unknown as number; // 3 segundos
+          }, 5000) as unknown as number; // 5 segundos
         }
       } catch (err) {
         console.error("Erro ao acessar a câmera:", err);
