@@ -23,6 +23,7 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationFrameId = useRef<number>();
+  const timeoutId = useRef<number>(); // Novo useRef para o temporizador
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const { toast } = useToast();
 
@@ -35,6 +36,10 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
     if (animationFrameId.current) {
       cancelAnimationFrame(animationFrameId.current);
       animationFrameId.current = undefined;
+    }
+    if (timeoutId.current) { // Limpa o temporizador ao parar o scan
+      clearTimeout(timeoutId.current);
+      timeoutId.current = undefined;
     }
   };
 
@@ -59,7 +64,7 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
 
         // Check if a code is found AND if it's a valid URL
         if (code && isValidUrl(code.data)) {
-          stopScan();
+          stopScan(); // Para a câmera e limpa o temporizador
           if (navigator.vibrate) navigator.vibrate(200); // Haptic feedback
           setShowSuccessMessage(true);
           // Delay before calling onScan to show success feedback
@@ -88,6 +93,13 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
           videoRef.current.srcObject = stream;
           videoRef.current.play();
           animationFrameId.current = requestAnimationFrame(tick);
+
+          // Inicia o temporizador para fechar a câmera após 3 segundos
+          timeoutId.current = setTimeout(() => {
+            console.log("Tempo limite atingido, fechando a câmera.");
+            stopScan();
+            onClose();
+          }, 3000) as unknown as number; // 3 segundos
         }
       } catch (err) {
         console.error("Erro ao acessar a câmera:", err);
@@ -101,7 +113,7 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
     };
 
     startScan();
-    return () => stopScan();
+    return () => stopScan(); // Garante que a câmera e o temporizador sejam parados ao desmontar
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -133,7 +145,7 @@ const QrCodeScanner: React.FC<QrCodeScannerProps> = ({ onScan, onClose }) => {
         
         {!showSuccessMessage && (
           <button
-            onClick={onClose}
+            onClick={() => { stopScan(); onClose(); }} // Garante que o timer seja limpo ao fechar manualmente
             className="absolute top-3 right-3 z-20 bg-white/80 rounded-full p-1.5 shadow-md hover:bg-white transition-all"
             aria-label="Fechar leitor de QR code"
           >
