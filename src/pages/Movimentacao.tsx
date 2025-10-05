@@ -175,32 +175,45 @@ const Movimentacao = () => {
     }
   };
 
-  const handleScanSuccess = (decodedText: string) => {
+  const handleScanSuccess = async (decodedText: string) => {
     setShowScanner(false);
-    
+    setProcessing(true);
+
     const url = extractUrl(decodedText);
     const searchTermValue = url || decodedText;
 
-    const foundPublication = publications.find(p => 
-      p.urlDoFabricante === searchTermValue || 
-      p.code === searchTermValue
-    );
-    
-    if (foundPublication) {
-      setSelectedPublication(foundPublication.id);
-      movementFormRef.current?.scrollIntoView({ behavior: 'smooth' });
-      toast({
-        title: "Publicação Encontrada",
-        description: `"${foundPublication.name}" selecionada.`,
-      });
-    } else {
-      setSearchTerm(searchTermValue);
-      setOpen(true); // Abre o popover de busca
-      toast({
-        title: "Publicação Não Encontrada",
-        description: "O código lido foi inserido no campo de busca.",
-        variant: "destructive",
-      });
+    try {
+      const { data: foundPublication, error } = await supabase
+        .from('publications')
+        .select('*')
+        .or(`code.eq.${searchTermValue},urlDoFabricante.eq.${searchTermValue},urlDoFabricanteAlternativa.eq.${searchTermValue}`)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { 
+        throw error;
+      }
+      
+      if (foundPublication) {
+        setSelectedPublication(foundPublication.id);
+        movementFormRef.current?.scrollIntoView({ behavior: 'smooth' });
+        toast({
+          title: "Publicação Encontrada",
+          description: `"${foundPublication.name}" selecionada.`,
+        });
+      } else {
+        setSearchTerm(searchTermValue);
+        setOpen(true);
+        toast({
+          title: "Publicação Não Encontrada",
+          description: "O código/URL lido foi inserido no campo de busca.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Erro ao buscar publicação por scan:', error);
+      showErrorMessage('buscar', 'publicação por QR Code', error.message);
+    } finally {
+      setProcessing(false);
     }
   };
   
