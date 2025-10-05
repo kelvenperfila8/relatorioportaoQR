@@ -309,8 +309,8 @@ const Movimentacao = () => {
                       </Command>
                     </PopoverContent>
                   </Popover>
-                  <Button onClick={() => setShowScanner(prev => !prev)} variant="outline" className="h-11 px-3">
-                    <Camera className="h-5 w-5" />
+                  <Button onClick={() => setShowScanner(prev => !prev)}>
+                    <Camera className="h-4 w-4" />
                   </Button>
                 </div>
                 {selectedPub && (

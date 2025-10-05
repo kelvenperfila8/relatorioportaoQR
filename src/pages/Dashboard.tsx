@@ -19,7 +19,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     loadPublications();
-    // Log dashboard access - using null for record_id since this is a general dashboard access
     logAction('view', 'dashboard', null);
   }, []);
 
@@ -46,7 +45,6 @@ const Dashboard = () => {
 
   const totalPublications = publications.length;
   const totalStock = publications.reduce((sum, pub) => sum + pub.current_stock, 0);
-  const lowStockItems = publications.filter(pub => pub.current_stock < 10).length;
   const categoriesCount = new Set(publications.map(pub => pub.category)).size;
 
   if (loading) {
@@ -67,7 +65,6 @@ const Dashboard = () => {
   return (
     <div className="min-h-screen bg-background p-3 md:p-6">
       <div className="max-w-7xl mx-auto space-y-4 md:space-y-6">
-        {/* Header */}
         <div className="text-center mb-6 md:mb-8 fade-in-up">
           <h1 className="text-2xl md:text-4xl font-bold text-[hsl(var(--brand-text))] mb-2 text-shadow">
             Publicações Portão
@@ -77,9 +74,7 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 slide-in-right">
-          {/* Card: Total de Publicações - Realçado com Glow */}
           <Card className="pro-card bg-gradient-to-br from-secondary/5 to-secondary/10 shadow-lg hover:shadow-2xl ring-2 ring-secondary/70 ring-offset-4 ring-offset-background transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -97,7 +92,6 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          {/* Card: Estoque Total - Realçado com Glow */}
           <Card className="pro-card bg-gradient-to-br from-success/5 to-success/10 shadow-lg hover:shadow-2xl ring-2 ring-success/70 ring-offset-4 ring-offset-background transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
@@ -116,7 +110,6 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Quick Access */}
         <Card className="pro-card scale-in">
           <CardHeader>
             <CardTitle className="text-base md:text-lg">Acesso Rápido</CardTitle>
@@ -126,39 +119,44 @@ const Dashboard = () => {
             <div className="space-y-3">
               <button 
                 onClick={() => navigate('/movimentacao')}
-                className="w-full flex items-center justify-between gap-2 p-3 md:p-4 bg-gradient-to-r from-secondary/10 to-secondary/5 hover:from-secondary/20 hover:to-secondary/10 rounded-lg transition-all duration-200 group pro-button mobile-optimized min-h-[44px]"
+                className="w-full flex items-center justify-between gap-4 p-3 rounded-xl transition-colors bg-background hover:bg-muted/40 border group"
               >
-                <div className="flex items-center gap-3">
-                  <BarChart3 className="h-5 w-5 text-secondary" />
-                  <span className="text-sm font-medium">Movimentação de Estoque</span>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-secondary/20">
+                    <BarChart3 className="h-5 w-5 text-[#505052]" />
+                  </div>
+                  <span className="font-medium text-sm">Movimentação de Estoque</span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-secondary group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
               </button>
               <button 
                 onClick={() => navigate('/estoque')}
-                className="w-full flex items-center justify-between gap-2 p-3 md:p-4 bg-gradient-to-r from-success/10 to-success/5 hover:from-success/20 hover:to-success/10 rounded-lg transition-all duration-200 group pro-button mobile-optimized min-h-[44px]"
+                className="w-full flex items-center justify-between gap-4 p-3 rounded-xl transition-colors bg-background hover:bg-muted/40 border group"
               >
-                <div className="flex items-center gap-3">
-                  <Package className="h-5 w-5 text-success" />
-                  <span className="text-sm font-medium">Consultar Estoque</span>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-success/20">
+                    <Package className="h-5 w-5 text-success" />
+                  </div>
+                  <span className="font-medium text-sm">Consultar Estoque</span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-success group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
               </button>
               <button 
                 onClick={() => navigate('/gerenciar')}
-                className="w-full flex items-center justify-between gap-2 p-3 md:p-4 bg-gradient-to-r from-accent/10 to-accent/5 hover:from-accent/20 hover:to-accent/10 rounded-lg transition-all duration-200 group pro-button mobile-optimized min-h-[44px]"
+                className="w-full flex items-center justify-between gap-4 p-3 rounded-xl transition-colors bg-background hover:bg-muted/40 border group"
               >
-                <div className="flex items-center gap-3">
-                  <BookOpen className="h-5 w-5 text-accent-foreground" />
-                  <span className="text-sm font-medium">Gerenciar Publicações</span>
+                <div className="flex items-center gap-4">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent/20">
+                    <BookOpen className="h-5 w-5 text-accent-foreground" />
+                  </div>
+                  <span className="font-medium text-sm">Gerenciar Publicações</span>
                 </div>
-                <ArrowRight className="h-4 w-4 text-accent-foreground group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:translate-x-1 transition-transform" />
               </button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Publications with Images */}
         <Card className="pro-card fade-in-up">
           <CardHeader>
             <CardTitle className="text-base md:text-lg flex items-center gap-2">
@@ -198,7 +196,8 @@ const Dashboard = () => {
                       </p>
                     </div>
                   </div>
-                ))}
+                ))
+              }
               {publications.filter(pub => pub.image_url).length === 0 && (
                 <div className="col-span-full text-center py-6 md:py-8">
                   <BookOpen className="h-8 md:h-12 w-8 md:w-12 mx-auto text-muted-foreground/30 mb-3 md:mb-4" />
