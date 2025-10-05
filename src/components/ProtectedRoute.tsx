@@ -13,7 +13,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   requireAdmin = false,
   requireReportAccess = false
 }) => {
-  const { user, profile, loading, isAdmin, canEdit, canAccessReports } = useAuth();
+  const { user, loading, isAdmin, canEdit, canAccessReports } = useAuth();
 
   if (loading) {
     return (
@@ -27,34 +27,14 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     return <Navigate to="/auth" replace />;
   }
 
+  // Se a rota exige permissão de admin/editor e o usuário não tem, redireciona para a home
   if (requireAdmin && !isAdmin && !canEdit) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-destructive mb-2">
-            Acesso Negado
-          </h2>
-          <p className="text-muted-foreground">
-            Você não tem permissão para acessar esta página.
-          </p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
+  // Se a rota exige permissão de relatórios e o usuário não tem, redireciona para a home
   if (requireReportAccess && !canAccessReports) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-destructive mb-2">
-            Acesso Negado
-          </h2>
-          <p className="text-muted-foreground">
-            Você não tem permissão para acessar os relatórios.
-          </p>
-        </div>
-      </div>
-    );
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

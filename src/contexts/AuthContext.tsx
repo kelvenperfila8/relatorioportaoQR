@@ -265,11 +265,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isVisualizador = profile?.role === 'visualizador';
   const canEdit = profile?.role === 'admin' || profile?.role === 'servo de balcao';
   const canCreate = profile?.role === 'admin' || profile?.role === 'servo de balcao';
-  const canDelete = profile?.role === 'admin';
-  const canSave = !isVisualizador; // Visualizadores não podem salvar nada
-  const canManageStock = !isVisualizador; // Visualizadores não podem gerenciar estoque
-  const canManageOrders = !isVisualizador; // Visualizadores não podem gerenciar pedidos
-  const canAccessReports = profile?.role === 'admin' || profile?.role === 'servo de balcao'; // Admin e servo de balcão podem acessar relatórios
+  const canDelete = profile?.role === 'admin' || profile?.role === 'servo de balcao'; // Permissão de exclusão adicionada
+  const canSave = !isVisualizador;
+  const canManageStock = !isVisualizador;
+  const canManageOrders = !isVisualizador;
+  const canAccessReports = profile?.role === 'admin' || profile?.role === 'servo de balcao';
 
   const value = {
     user,
