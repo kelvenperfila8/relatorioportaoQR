@@ -12,11 +12,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/contexts/AuthContext';
+import { useAuditLog } from "@/hooks/useAuditLog";
 import { CodeBadge } from "@/components/ui/code-badge";
 import { StockBadge } from "@/components/ui/stock-badge";
 import { PublicationCover } from "@/components/PublicationCover";
 import { Publication } from "@/types";
 import QrCodeScanner from "@/components/QrCodeScanner";
+import PublicationFormDialog from "@/components/PublicationFormDialog";
+import AdjustStockDialog from "@/components/AdjustStockDialog";
+import PublicationHistoryDialog from "@/components/PublicationHistoryDialog";
 
 const ITEMS_PER_PAGE = 30;
 
@@ -28,14 +32,15 @@ const extractUrl = (text: string): string | null => {
 
 const formatCsvValue = (value: any): string => {
   const stringValue = String(value ?? '');
-  if (/[";\n\r]/.test(stringValue)) {
+  if (/[\",;\n\r]/.test(stringValue)) {
     return `"${stringValue.replace(/"/g, '""')}"`;
   }
   return stringValue;
 };
 
 const Estoque = () => {
-  const { canManageStock } = useAuth();
+  const { canManageStock, canAccessReports } = useAuth();
+  const { showSuccessMessage } = useAuditLog();
   const [publications, setPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -47,6 +52,9 @@ const Estoque = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [showScanner, setShowScanner] = useState(false);
 
+  const [editingPublication, setEditingPublication] = useState<Publication | null>(null);
+  const [adjustingStockPublication, setAdjustingStockPublication] = useState<Publication | null>(null);
+  const [viewingHistoryPublication, setViewingHistoryPublication] = useState<Publication | null>(null);
   const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<{url: string, title: string} | null>(null);
   
@@ -142,7 +150,6 @@ const Estoque = () => {
 
     setLoading(true);
     try {
-      // Busca a URL escaneada em qualquer um dos dois campos
       const { data, error } = await supabase
         .from('publications')
         .select('*')
@@ -184,6 +191,17 @@ const Estoque = () => {
       setLoading(false);
       topRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
+  };
+
+  const handleUpdatePublication = (updatedPub: Publication) => {
+    setPublications(publications.map(p => p.id === updatedPub.id ? updatedPub : p));
+    setEditingPublication(null);
+    showSuccessMessage('update', `Publicação "${updatedPub.name}" atualizada.`);
+  };
+
+  const handleStockAdjusted = (updatedPub: Publication) => {
+    setPublications(publications.map(p => p.id === updatedPub.id ? updatedPub : p));
+    setAdjustingStockPublication(null);
   };
 
   return (
@@ -274,9 +292,21 @@ const Estoque = () => {
                          <DropdownMenu>
                            <DropdownMenuTrigger asChild><Button variant="ghost" size="sm"><MoreVertical className="h-4 w-4" /></Button></DropdownMenuTrigger>
                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem disabled={!canManageStock}>Ajustar Estoque</DropdownMenuItem>
-                              <DropdownMenuItem>Ver Histórico</DropdownMenuItem>
-                              <DropdownMenuItem disabled={!canManageStock}>Editar Publicação</DropdownMenuItem>
+                              <DropdownMenuItem 
+                                disabled={!canManageStock}
+                                onSelect={() => setAdjustingStockPublication(pub)}>
+                                Ajustar Estoque
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                disabled={!canAccessReports}
+                                onSelect={() => setViewingHistoryPublication(pub)}>
+                                Ver Histórico
+                              </DropdownMenuItem>
+                              <DropdownMenuItem 
+                                disabled={!canManageStock}
+                                onSelect={() => setEditingPublication(pub)}>
+                                Editar Publicação
+                              </DropdownMenuItem>
                            </DropdownMenuContent>
                          </DropdownMenu>
                        </TableCell>
@@ -301,6 +331,32 @@ const Estoque = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {editingPublication && (
+        <PublicationFormDialog
+          open={!!editingPublication}
+          onOpenChange={(isOpen) => !isOpen && setEditingPublication(null)}
+          publication={editingPublication}
+          onSave={handleUpdatePublication}
+        />
+      )}
+
+      {adjustingStockPublication && (
+        <AdjustStockDialog
+          open={!!adjustingStockPublication}
+          onOpenChange={(isOpen) => !isOpen && setAdjustingStockPublication(null)}
+          publication={adjustingStockPublication}
+          onStockAdjusted={handleStockAdjusted}
+        />
+      )}
+
+      {viewingHistoryPublication && (
+        <PublicationHistoryDialog
+          open={!!viewingHistoryPublication}
+          onOpenChange={(isOpen) => !isOpen && setViewingHistoryPublication(null)}
+          publication={viewingHistoryPublication}
+        />
+      )}
     </div>
   );
 };

@@ -13,7 +13,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { CodeBadge } from "@/components/ui/code-badge";
-import { PublicationFormDialog } from "@/components/PublicationFormDialog";
+import PublicationFormDialog from "@/components/PublicationFormDialog";
 import { PublicationCover } from "@/components/PublicationCover";
 import QrCodeScanner from '@/components/QrCodeScanner';
 

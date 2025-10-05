@@ -28,7 +28,7 @@ const isValidUrl = (urlString: string): boolean => {
   }
 };
 
-export const PublicationFormDialog = ({ 
+const PublicationFormDialog = ({ 
   open, 
   onOpenChange, 
   publication, 
@@ -245,3 +245,5 @@ export const PublicationFormDialog = ({
     </Dialog>
   );
 };
+
+export default PublicationFormDialog;
