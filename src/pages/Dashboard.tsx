@@ -79,7 +79,8 @@ const Dashboard = () => {
 
         {/* Dashboard Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 slide-in-right">
-          <Card className="pro-card bg-gradient-to-br from-secondary/5 to-secondary/10 border-secondary/20 hover:shadow-xl transition-all duration-300">
+          {/* Card: Total de Publicações - Realçado com Glow */}
+          <Card className="pro-card bg-gradient-to-br from-secondary/5 to-secondary/10 shadow-lg hover:shadow-2xl ring-2 ring-secondary/70 ring-offset-4 ring-offset-background transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Total de Publicações
@@ -96,7 +97,8 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
-          <Card className="pro-card bg-gradient-to-br from-success/5 to-success/10 border-success/20 hover:shadow-xl transition-all duration-300">
+          {/* Card: Estoque Total - Realçado com Glow */}
+          <Card className="pro-card bg-gradient-to-br from-success/5 to-success/10 shadow-lg hover:shadow-2xl ring-2 ring-success/70 ring-offset-4 ring-offset-background transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
                 Estoque Total
