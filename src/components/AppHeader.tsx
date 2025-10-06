@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, BarChart3, Package, ShoppingCart, FolderOpen, Menu, BookOpen, Users, LogOut, User, Shield, Settings, Eye, Database } from "lucide-react";
+import { Home, BarChart3, Package, ShoppingCart, FolderOpen, Menu, BookOpen, Users, LogOut, User, Shield, Settings, Eye } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -200,12 +200,6 @@ const AppHeader = () => {
                           <NavLink to="/admin/usuarios" className="flex items-center gap-3 px-3 py-3">
                             <Users className="h-5 w-5 text-foreground" />
                             <span className="font-medium">Usuários</span>
-                          </NavLink>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild className="hover:bg-foreground/5 rounded-lg">
-                          <NavLink to="/admin/supabase" className="flex items-center gap-3 px-3 py-3">
-                            <Database className="h-5 w-5 text-foreground" />
-                            <span className="font-medium">Supabase</span>
                           </NavLink>
                         </DropdownMenuItem>
                       </>
