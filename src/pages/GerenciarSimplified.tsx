@@ -180,7 +180,7 @@ const GerenciarSimplified = () => {
   const filteredPublications = publications.filter(pub => {
     const normalizedSearch = normalizeText(searchTerm);
     const matchesName = () => normalizeText(pub.name).includes(normalizedSearch);
-    const matchesCode = () => normalizeText(pub.code) === normalizedSearch;
+    const matchesCode = () => normalizeText(pub.code).includes(normalizedSearch);
     const matchesUrl = () => pub.urlDoFabricante && normalizeText(pub.urlDoFabricante).includes(normalizedSearch);
 
     return (
