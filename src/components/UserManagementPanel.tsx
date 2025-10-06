@@ -293,13 +293,34 @@ export default function UserManagementPanel() {
   };
 
   const handleToggleStatus = async (profile: Profile) => {
-    try {
-      // Como não temos is_active na tabela ainda, vamos simular localmente
+    if (profile.role === 'admin') {
       toast({
-        title: "Funcionalidade em desenvolvimento",
-        description: "Ativação/desativação será implementada com atualização do banco",
-        variant: "default",
+        title: "Ação não permitida",
+        description: "O status de administradores não pode ser alterado por esta ação.",
+        variant: "destructive",
       });
+      return;
+    }
+
+    const newStatus = !profile.is_active;
+    const actionVerb = newStatus ? 'ativar' : 'desativar';
+
+    if (!confirm(`Tem certeza que deseja ${actionVerb} o usuário ${profile.full_name}?`)) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ is_active: newStatus })
+        .eq('id', profile.id);
+
+      if (error) throw error;
+
+      showSuccessMessage('update', `Usuário ${actionVerb === 'ativar' ? 'ativado' : 'desativado'}`);
+      await logAction('update', 'profiles', profile.id, { is_active: profile.is_active }, { is_active: newStatus });
+      
+      fetchProfiles();
     } catch (error: any) {
       console.error('Error toggling user status:', error);
       showErrorMessage('alterar', 'status do usuário', error.message);
