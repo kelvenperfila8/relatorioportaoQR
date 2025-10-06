@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, BarChart3, Package, ShoppingCart, FolderOpen, Menu, BookOpen, Users, LogOut, User, Shield, Settings, Eye } from "lucide-react";
+import { Home, BarChart3, Package, ShoppingCart, FolderOpen, Menu, BookOpen, Users, LogOut, User, Shield, Settings, Eye, Database } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -37,10 +37,8 @@ const AppHeader = () => {
         }
         
         if (data && data.system_logo_url) {
-          console.log('Logo encontrado:', data.system_logo_url);
           setCustomLogo(data.system_logo_url);
         } else {
-          console.log('Nenhum logo personalizado encontrado');
           setCustomLogo(null);
         }
       } catch (error) {
@@ -50,7 +48,7 @@ const AppHeader = () => {
     };
 
     fetchLogo();
-  }, [logoConfigOpen]); // Atualizar quando o dialog de logo fechar
+  }, [logoConfigOpen]);
 
   const navigationItems = [
     { name: "Início", href: "/", icon: Home },
@@ -72,7 +70,6 @@ const AppHeader = () => {
       <header className="wol-header sticky top-0 z-50 w-full">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <div className="flex items-center gap-4">
               <NavLink to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div className="w-12 h-12 overflow-hidden border-2 border-border/20">
@@ -98,7 +95,6 @@ const AppHeader = () => {
               </NavLink>
             </div>
 
-            {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-1">
               {navigationItems.map((item) => {
                 const Icon = item.icon;
@@ -119,7 +115,6 @@ const AppHeader = () => {
               })}
             </nav>
 
-            {/* Mobile Menu */}
             <div className="flex items-center gap-2">
               <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
                 <SheetTrigger asChild>
@@ -173,7 +168,6 @@ const AppHeader = () => {
                 </SheetContent>
               </Sheet>
 
-              {/* User Profile */}
               {profile && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -201,12 +195,20 @@ const AppHeader = () => {
                     
                     <div className="p-2">
                     {isAdmin && (
+                      <>
                         <DropdownMenuItem asChild className="hover:bg-foreground/5 rounded-lg">
                           <NavLink to="/admin/usuarios" className="flex items-center gap-3 px-3 py-3">
                             <Users className="h-5 w-5 text-foreground" />
                             <span className="font-medium">Usuários</span>
                           </NavLink>
                         </DropdownMenuItem>
+                        <DropdownMenuItem asChild className="hover:bg-foreground/5 rounded-lg">
+                          <NavLink to="/admin/supabase" className="flex items-center gap-3 px-3 py-3">
+                            <Database className="h-5 w-5 text-foreground" />
+                            <span className="font-medium">Supabase</span>
+                          </NavLink>
+                        </DropdownMenuItem>
+                      </>
                       )}
                       <DropdownMenuItem asChild className="hover:bg-foreground/5 rounded-lg">
                         <NavLink to="/relatorios-usuarios" className="flex items-center gap-3 px-3 py-3">
@@ -236,7 +238,6 @@ const AppHeader = () => {
         </div>
       </header>
 
-      {/* Logo Configuration Dialog */}
       <LogoConfig 
         isOpen={logoConfigOpen} 
         onOpenChange={setLogoConfigOpen} 
