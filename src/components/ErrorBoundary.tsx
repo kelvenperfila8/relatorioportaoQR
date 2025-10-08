@@ -6,11 +6,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 interface ErrorBoundaryState {
   hasError: boolean;
   error?: Error;
+  errorInfo?: React.ErrorInfo;
 }
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
 }
+
+// Placeholder for your error reporting service (e.g., Sentry, BugSnag)
+const reportError = (error: Error, errorInfo?: React.ErrorInfo) => {
+  console.error('Reporting error to monitoring service:', error, errorInfo);
+  // In a real implementation, you would send the error to your service here
+  // Example:
+  // Sentry.captureException(error, { extra: errorInfo });
+};
 
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -24,6 +33,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    this.setState({ errorInfo });
+    reportError(error, errorInfo);
   }
 
   render() {
@@ -41,13 +52,21 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {process.env.NODE_ENV === 'development' && this.state.error && (
-                <div className="bg-muted p-3 rounded-md">
+              <div className="bg-muted p-3 rounded-md">
+                <p className="text-xs text-muted-foreground">
+                  Mensagem: {this.state.error?.message}
+                </p>
+                {this.state.errorInfo && (
+                  <p className="text-xs text-muted-foreground">
+                    Componente: {this.state.errorInfo.componentStack.split('\n')[0].trim()}
+                  </p>
+                )}
+                {process.env.NODE_ENV === 'development' && this.state.error && (
                   <pre className="text-xs text-muted-foreground overflow-auto">
                     {this.state.error.stack}
                   </pre>
-                </div>
-              )}
+                )}
+              </div>
               <Button 
                 onClick={() => window.location.reload()} 
                 className="w-full"
