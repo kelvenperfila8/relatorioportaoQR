@@ -69,7 +69,6 @@ export const useAuditLog = () => {
     toast({
       title: "Sucesso",
       description: messages[action as keyof typeof messages] || `${action} realizada com sucesso ✅`,
-      duration: 3000,
     });
   };
 
@@ -78,7 +77,6 @@ export const useAuditLog = () => {
       title: "Erro",
       description: `❌ Erro ao ${action} ${entity}. ${error || 'Tente novamente.'}`,
       variant: "destructive",
-      duration: 5000,
     });
   };
 

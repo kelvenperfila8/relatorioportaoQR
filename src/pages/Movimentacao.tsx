@@ -90,7 +90,7 @@ const Movimentacao = () => {
       toast({
         title: "Erro",
         description: "Erro ao carregar dados.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -102,7 +102,7 @@ const Movimentacao = () => {
       toast({
         title: "Erro",
         description: "Por favor, selecione uma publicação e informe uma quantidade válida.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -116,7 +116,7 @@ const Movimentacao = () => {
       toast({
         title: "Estoque insuficiente",
         description: `Disponível apenas ${pub.current_stock} unidades de "${pub.name}".`,
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }

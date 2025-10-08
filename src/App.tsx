@@ -43,8 +43,8 @@ const App = () => {
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <Toaster />
-          <Sonner duration={2000} />
+          <Toaster duration={1000} />
+          <Sonner duration={1000} />
           <BrowserRouter>
             <AuthProvider>
               <NetworkStatus />

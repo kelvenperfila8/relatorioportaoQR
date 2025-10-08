@@ -43,6 +43,7 @@ export const CodeBadge = ({ code, className }: CodeBadgeProps) => {
         toast({
           title: "Código copiado",
           description: `Código "${code}" copiado para a área de transferência.`,
+          duration: 1000,
         });
       } else {
         // Lança um erro se o comando não for bem-sucedido
@@ -53,7 +54,8 @@ export const CodeBadge = ({ code, className }: CodeBadgeProps) => {
       toast({
         title: "Erro",
         description: "Não foi possível copiar o código.",
-        variant: "destructive"
+        variant: "destructive",
+        duration: 1000,
       });
     } finally {
       document.body.removeChild(textArea);
