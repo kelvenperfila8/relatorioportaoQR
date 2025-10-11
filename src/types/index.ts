@@ -45,5 +45,5 @@ export const PUBLICATION_CATEGORIES = [
   "Kit de Ferramentas de Ensino",
   "Livros",
   "Revistas — Despertai!",
-  "Revistas - Sentinela"
+  "Revistas — Sentinela"
 ];
