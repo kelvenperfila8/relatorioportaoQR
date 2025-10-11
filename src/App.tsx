@@ -21,7 +21,6 @@ const AdminUsers = lazy(() => import('@/pages/AdminUsers'));
 const Auth = lazy(() => import('@/pages/Auth'));
 const AuditLogs = lazy(() => import('@/pages/AuditLogs'));
 const InsertPublications = lazy(() => import('./pages/InsertPublications'));
-const DataFix = lazy(() => import('@/pages/DataFix'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
 const queryClient = new QueryClient();
@@ -60,7 +59,6 @@ const App = () => {
                     <Route path="/admin/usuarios" element={<ProtectedRoute requireAdmin><MainLayout><AdminUsers /></MainLayout></ProtectedRoute>} />
                     <Route path="/auditoria" element={<ProtectedRoute requireAdmin><MainLayout><AuditLogs /></MainLayout></ProtectedRoute>} />
                     <Route path="/insert-publications" element={<ProtectedRoute requireAdmin><MainLayout><InsertPublications /></MainLayout></ProtectedRoute>} />
-                    <Route path="/data-fix" element={<ProtectedRoute requireAdmin><MainLayout><DataFix /></MainLayout></ProtectedRoute>} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
