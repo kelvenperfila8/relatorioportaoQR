@@ -45,7 +45,7 @@ const App = () => {
         <TooltipProvider>
           <Toaster duration={1000} />
           <Sonner duration={1000} />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AuthProvider>
               <NetworkStatus />
               <div className="min-h-screen bg-background light mobile-optimized">
