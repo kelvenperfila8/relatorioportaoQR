@@ -20,6 +20,7 @@ const GerenciarSimplified = lazy(() => import('@/pages/GerenciarSimplified'));
 const AdminUsers = lazy(() => import('@/pages/AdminUsers')); 
 const Auth = lazy(() => import('@/pages/Auth'));
 const AuditLogs = lazy(() => import('@/pages/AuditLogs'));
+const RelatoriosUsuarios = lazy(() => import('@/pages/RelatoriosUsuarios'));
 const InsertPublications = lazy(() => import('./pages/InsertPublications'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
 
@@ -59,6 +60,7 @@ const App = () => {
                     <Route path="/admin/usuarios" element={<ProtectedRoute requireAdmin><MainLayout><AdminUsers /></MainLayout></ProtectedRoute>} />
                     <Route path="/auditoria" element={<ProtectedRoute requireAdmin><MainLayout><AuditLogs /></MainLayout></ProtectedRoute>} />
                     <Route path="/insert-publications" element={<ProtectedRoute requireAdmin><MainLayout><InsertPublications /></MainLayout></ProtectedRoute>} />
+                    <Route path="/relatorios-usuarios" element={<ProtectedRoute requireReportAccess><MainLayout><RelatoriosUsuarios /></MainLayout></ProtectedRoute>} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </Suspense>
