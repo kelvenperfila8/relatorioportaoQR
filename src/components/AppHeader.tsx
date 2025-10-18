@@ -77,11 +77,11 @@ const AppHeader = () => {
                     <OptimizedImage 
                       src={customLogo} 
                       alt="Logo do sistema" 
-                      className="w-full h-full object-cover"
+                      className="logo w-full h-full object-cover"
                       objectFit="cover"
                     />
                   ) : (
-                    <div className="bg-[#8DB0D9] w-full h-full">
+                    <div className="logo bg-[#8DB0D9] w-full h-full">
                       <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                         <rect width="48" height="48" fill="#8DB0D9"/>
                         <path d="M12 8h24v8h-2v4h2v20H12V20h2v-4h-2V8zm4 4v4h4V12h-4zm8 0v4h4V12h-4zm8 0v4h4V12h-4zm-16 8v16h16V20H16z" fill="white"/>
